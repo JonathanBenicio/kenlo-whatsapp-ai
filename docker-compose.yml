@@ -1,0 +1,92 @@
+name: kenlo-demo
+
+# Somente demonstração local. As credenciais e a chave abaixo são fictícias;
+# não reutilize esta configuração ou os volumes em produção.
+services:
+  api:
+    build:
+      context: ./backend
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      STORE_MODE: ${STORE_MODE:-memory}
+      DATABASE_URL: ${DATABASE_URL:-}
+    # Acesso opcional ao Supabase local; não concede acesso a um banco remoto.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  painel:
+    build:
+      context: ./frontend
+    ports:
+      - "127.0.0.1:5173:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  n8n-db:
+    image: postgres:17.12-alpine
+    environment:
+      POSTGRES_DB: n8n_demo
+      POSTGRES_USER: n8n_demo
+      POSTGRES_PASSWORD: local-demo-not-a-secret
+    volumes:
+      - n8n-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n_demo -d n8n_demo"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n:2.47.7
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: n8n-db
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: n8n_demo
+      DB_POSTGRESDB_USER: n8n_demo
+      DB_POSTGRESDB_PASSWORD: local-demo-not-a-secret
+      N8N_ENCRYPTION_KEY: local-demo-only-not-a-production-secret-32
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      N8N_SECURE_COOKIE: "false"
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+      N8N_TEMPLATES_ENABLED: "false"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      GENERIC_TIMEZONE: America/Sao_Paulo
+      WEBHOOK_URL: http://localhost:5678/
+    volumes:
+      - n8n-data:/home/node/.n8n
+      - ./n8n/workflows:/home/node/demo-workflows:ro
+    depends_on:
+      n8n-db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5678/healthz').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  n8n-data:
+  n8n-db-data:

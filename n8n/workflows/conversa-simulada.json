@@ -1,0 +1,37 @@
+{
+  "name": "Demonstração local — conversa simulada",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "simulate-manually",
+      "name": "Executar demonstração",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:8080/api/simulation/messages",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ conversationId: '11111111-1111-1111-1111-111111111111', messageId: 'n8n-' + $execution.id, text: 'Procuro apartamento em Campinas com dois quartos.' }) }}",
+        "options": { "timeout": 5000 }
+      },
+      "id": "send-synthetic-message",
+      "name": "Enviar mensagem fictícia à API local",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    }
+  ],
+  "connections": {
+    "Executar demonstração": {
+      "main": [[{ "node": "Enviar mensagem fictícia à API local", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "active": false,
+  "pinData": {},
+  "tags": []
+}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Formato exclusivamente fictício para testes; não representa o XML do Kenlo. -->
+<synthetic-catalog format="demo-v1">
+  <property code="SIM-101">
+    <title>Apartamento fictício com varanda</title>
+    <city>Campinas</city>
+    <neighborhood>Centro</neighborhood>
+    <price>620000.00</price>
+    <bedrooms>3</bedrooms>
+    <parking>2</parking>
+    <features><feature>Varanda</feature></features>
+    <listingUrl>https://example.invalid/imoveis/SIM-101</listingUrl>
+    <updatedAt>2026-01-01T00:00:00Z</updatedAt>
+  </property>
+</synthetic-catalog>
