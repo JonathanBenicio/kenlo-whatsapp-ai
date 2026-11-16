@@ -13,3 +13,7 @@ coverage/
 *.user
 *.suo
 .DS_Store
+
+# Artefatos Python de verificação
+__pycache__/
+*.pyc
