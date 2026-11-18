@@ -1,0 +1,19 @@
+# Dependências e saídas de build
+**/node_modules/
+**/dist/
+**/bin/
+**/obj/
+**/TestResults/
+coverage/
+
+# Configuração local e segredos
+.env
+.env.*
+!.env.example
+*.user
+*.suo
+.DS_Store
+
+# Artefatos Python de verificação
+__pycache__/
+*.pyc
